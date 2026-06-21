@@ -1,0 +1,221 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    directUrl = env("DIRECT_URL")
+    url       = env("DATABASE_URL")
+}
+
+model User {
+    id            String         @id @default(ulid()) @db.Char(36)
+    name          String         @db.VarChar(255)
+    email         String         @unique @db.VarChar(255)
+    auth_type     String         @db.VarChar(50)
+    bio           String?        @db.Text
+    created_at    DateTime       @default(now()) @db.Timestamp(6)
+    email_contact String?        @db.VarChar(255)
+    github        String?        @db.VarChar(255)
+    instagram     String?        @db.VarChar(255)
+    linkedin      String?        @db.VarChar(255)
+    photo_profile String?        @db.VarChar(255)
+    username      String         @db.VarChar(255)
+    gender        genderType?
+    Bookmark      Bookmark[]
+    Comment       Comment[]
+    followers     Follow[]       @relation("Follower")
+    following     Follow[]       @relation("Following")
+    LikeComment   LikeComment[]
+    LikeProject   LikeProject[]
+    notifications Notification[]
+    project_user  ProjectUser[]
+    count_summary count_summary?
+    pinProject    pinProject[]
+
+    @@index([username], map: "idx_username")
+}
+
+model Project {
+    id               String        @id @default(ulid()) @db.Char(26)
+    id_category      String        @db.Char(26)
+    slug             String        @unique @db.VarChar(255)
+    title            String        @db.VarChar(255)
+    content          String        @db.Text
+    is_archived      Boolean       @default(false)
+    image1           String?       @db.VarChar(255)
+    image2           String?       @db.VarChar(255)
+    image3           String?       @db.VarChar(255)
+    image4           String?       @db.VarChar(255)
+    image5           String?       @db.VarChar(255)
+    video            String?       @db.VarChar(255)
+    link_github      String?       @db.VarChar(255)
+    link_figma       String?       @db.VarChar(255)
+    count_likes      Int           @default(0)
+    count_comments   Int           @default(0)
+    popularity_score Float?        @default(0)
+    created_at       DateTime      @default(now()) @db.Timestamp(6)
+    updated_at       DateTime      @updatedAt @db.Timestamp(6)
+    bookmarks        Bookmark[]
+    Comment          Comment[]
+    LikeProject      LikeProject[]
+    category         Category      @relation(fields: [id_category], references: [id], onDelete: Cascade)
+    project_user     ProjectUser[]
+    pinProject       pinProject[]
+
+    @@index([id_category], map: "idx_category")
+    @@index([slug], map: "idx_slug_project")
+    @@index([is_archived, created_at], map: "idx_archived_created")
+    @@index([popularity_score], map: "idx_popularity_score")
+}
+
+model Comment {
+    id          String        @id @default(ulid()) @db.Char(26)
+    id_user     String        @db.Char(36)
+    id_project  String        @db.Char(26)
+    content     String        @db.Text
+    count_like  Int           @default(0)
+    created_at  DateTime      @default(now()) @db.Timestamp(6)
+    updated_at  DateTime      @updatedAt @db.Timestamp(6)
+    parent_id   String?       @db.Char(26)
+    project     Project       @relation(fields: [id_project], references: [id], onDelete: Cascade)
+    user        User          @relation(fields: [id_user], references: [id])
+    parent      Comment?      @relation("CommentReplies", fields: [parent_id], references: [id])
+    replies     Comment[]     @relation("CommentReplies")
+    LikeComment LikeComment[]
+
+    @@index([id_project], map: "idx_project_comment")
+    @@index([parent_id], map: "idx_comment_parent")
+    @@index([id_user], map: "idx_user_comment")
+}
+
+model Notification {
+    id         String    @id @default(ulid()) @db.Char(26)
+    id_user    String    @db.Char(36)
+    title      String    @db.VarChar(255)
+    created_at DateTime  @default(now()) @db.Timestamp(6)
+    is_read    Boolean   @default(false)
+    type       notifType
+    user       User      @relation(fields: [id_user], references: [id])
+
+    @@index([id_user], map: "idx_user_notification")
+    @@index([id_user, is_read], map: "idx_user_notification_read")
+}
+
+model Category {
+    id             String    @id @default(ulid()) @db.Char(26)
+    slug           String    @unique @db.VarChar(255)
+    title          String    @db.VarChar(255)
+    count_projects Int       @default(0)
+    created_at     DateTime  @default(now()) @db.Timestamp(6)
+    projects       Project[]
+}
+
+model count_summary {
+    id              String   @id @default(ulid()) @db.Char(26)
+    id_user         String   @unique @db.Char(36)
+    count_project   Int      @default(0)
+    count_following Int      @default(0)
+    count_follower  Int      @default(0)
+    created_at      DateTime @default(now()) @db.Timestamp(6)
+    all_notif_read  Boolean  @default(true)
+    user            User     @relation(fields: [id_user], references: [id])
+
+    @@index([id_user], map: "idx_user_count_summary")
+}
+
+model Follow {
+    id           String   @id @default(ulid()) @db.Char(26)
+    id_follower  String   @db.Char(36)
+    id_following String   @db.Char(36)
+    created_at   DateTime @default(now()) @db.Timestamp(6)
+    follower     User     @relation("Follower", fields: [id_follower], references: [id])
+    following    User     @relation("Following", fields: [id_following], references: [id])
+
+    @@index([id_follower, id_following], map: "idx_follower_following")
+    @@index([id_following], map: "idx_following")
+}
+
+model ProjectUser {
+    id           String            @id @default(ulid()) @db.Char(26)
+    id_user      String            @db.Char(36)
+    id_project   String            @db.Char(26)
+    ownership    ownershipType     @default(OWNER)
+    collabStatus collabStatusType?
+    created_at   DateTime          @default(now()) @db.Timestamp(6)
+    project      Project           @relation(fields: [id_project], references: [id], onDelete: Cascade)
+    user         User              @relation(fields: [id_user], references: [id])
+
+    @@index([id_user, id_project], map: "idx_user_project")
+    @@index([id_user, collabStatus], map: "idx_user_collab_status")
+}
+
+model Bookmark {
+    id         String   @id @default(ulid()) @db.Char(26)
+    id_user    String   @db.Char(36)
+    id_project String   @db.Char(26)
+    created_at DateTime @default(now()) @db.Timestamp(6)
+    project    Project  @relation(fields: [id_project], references: [id], onDelete: Cascade)
+    user       User     @relation(fields: [id_user], references: [id])
+
+    @@index([id_user, id_project], map: "idx_user_project_bookmark")
+}
+
+model LikeProject {
+    id         String   @id @default(ulid()) @db.Char(26)
+    id_user    String   @db.Char(36)
+    id_project String   @db.Char(26)
+    created_at DateTime @default(now()) @db.Timestamp(6)
+    project    Project  @relation(fields: [id_project], references: [id], onDelete: Cascade)
+    user       User     @relation(fields: [id_user], references: [id])
+
+    @@index([id_user, id_project], map: "idx_user_project_like")
+}
+
+model LikeComment {
+    id         String   @id @default(ulid()) @db.Char(26)
+    id_user    String   @db.Char(36)
+    id_comment String   @db.Char(26)
+    created_at DateTime @default(now()) @db.Timestamp(6)
+    comment    Comment  @relation(fields: [id_comment], references: [id], onDelete: Cascade)
+    user       User     @relation(fields: [id_user], references: [id])
+
+    @@index([id_user, id_comment], map: "idx_user_comment_like")
+}
+
+model pinProject {
+    id         String   @id @default(ulid()) @db.Char(26)
+    id_user    String   @db.Char(36)
+    id_project String   @db.Char(26)
+    created_at DateTime @default(now()) @db.Timestamp(6)
+    project    Project  @relation(fields: [id_project], references: [id], onDelete: Cascade)
+    user       User     @relation(fields: [id_user], references: [id])
+
+    @@index([id_user, id_project], map: "idx_user_project_pin")
+}
+
+enum genderType {
+    MALE
+    FEMALE
+}
+
+enum notifType {
+    FOLLOW
+    LIKE_PROJECT
+    LIKE_COMMENT
+    COMMENT_PROJECT
+    COMMENT
+    REPLY_COMMENT
+    COLLABORATION
+}
+
+enum ownershipType {
+    OWNER
+    COLLABORATOR
+}
+
+enum collabStatusType {
+    PENDING
+    ACCEPTED
+    REJECTED
+}
