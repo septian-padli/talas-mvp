@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: talas_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-talas_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-talas_password}
+      POSTGRES_DB: ${POSTGRES_DB:-talas_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432" # Bind to localhost:5433 to restrict database access internally to the host
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: talas_pgbouncer
+    restart: always
+    ports:
+      - "5435:6432" # Expose PgBouncer to host port 5435
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER:-talas_user}:${POSTGRES_PASSWORD:-talas_password}@db:5432/${POSTGRES_DB:-talas_db}"
+      POOL_MODE: transaction
+      PGBOUNCER_AUTH_TYPE: ${PGBOUNCER_AUTH_TYPE:-trust}
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 20
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

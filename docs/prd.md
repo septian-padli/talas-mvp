@@ -446,3 +446,7 @@ Untuk menjaga integritas data dan kemudahan migrasi ke _microservices_, diberlak
 
 - **Search Module**
   Bertanggung jawab atas pengindeksan teks untuk kueri pencarian global dan manajemen kurasi taksonomi _hashtag_ di seluruh _Artifact_ dan _Guild_.
+
+## 8. Shadcn
+
+`--preset b2BpQABbk`
