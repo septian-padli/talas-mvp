@@ -56,7 +56,7 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", comfortaa.variable, geistMono.variable, "font-sans")}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="bg-olive-950 min-h-screen text-white flex flex-col">{children}</body>
     </html>
   );
 }
