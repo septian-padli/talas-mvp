@@ -7,6 +7,7 @@ export interface IAuthService {
     email: string;
     name: string;
     username: string;
+    picture?: string | null;
   }): Promise<User>;
   checkUsernameExists(username: string): Promise<boolean>;
   generateTokens(user: Pick<User, "id" | "email" | "username">): Promise<{
@@ -15,8 +16,9 @@ export interface IAuthService {
     accessTokenExpiry: number;
     refreshTokenExpiry: number;
   }>;
-  createTempOAuthToken(email: string, name: string): Promise<string>;
+  createTempOAuthToken(email: string, name: string, picture?: string | null): Promise<string>;
   verifyJWT(token: string): Promise<any>;
+  getCurrentUser(token: string): Promise<User | null>;
 }
 
 // In the modular monolith architecture, we export the interface-conforming implementation as a facade.
@@ -46,13 +48,18 @@ export const AuthService: IAuthService = {
     return authService.generateTokens(user);
   },
 
-  async createTempOAuthToken(email: string, name: string) {
+  async createTempOAuthToken(email: string, name: string, picture?: string | null) {
     const { authService } = await import("./services/auth.service");
-    return authService.createTempOAuthToken(email, name);
+    return authService.createTempOAuthToken(email, name, picture);
   },
 
   async verifyJWT(token: string) {
     const { authService } = await import("./services/auth.service");
     return authService.verifyJWT(token);
+  },
+
+  async getCurrentUser(token: string) {
+    const { authService } = await import("./services/auth.service");
+    return authService.getCurrentUser(token);
   }
 };

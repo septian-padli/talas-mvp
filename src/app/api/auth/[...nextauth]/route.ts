@@ -23,8 +23,9 @@ export const authOptions: NextAuthOptions = {
         try {
           const dbUser = await AuthService.findUserByEmail(email);
 
-          // Generate a temp token to transfer email & name information securely via query params
-          const tempToken = await AuthService.createTempOAuthToken(email, name || "");
+          const picture = user.image || null;
+          // Generate a temp token to transfer email, name & picture information securely via query params
+          const tempToken = await AuthService.createTempOAuthToken(email, name || "", picture);
           const encodedToken = encodeURIComponent(tempToken);
 
           if (!dbUser) {

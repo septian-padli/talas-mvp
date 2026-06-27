@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, name } = payload;
+    const { email, name, picture } = payload;
     if (!email) {
       return NextResponse.json(
         { success: false, message: "Invalid payload details." },
@@ -76,6 +76,7 @@ export async function POST(request: Request) {
       email,
       name,
       username: cleanUsername,
+      picture: picture || null,
     });
 
     // Generate tokens

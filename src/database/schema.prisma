@@ -41,9 +41,11 @@ model User {
   job_title     String?    @db.VarChar(255)
   job_status    JobStatus? @default(NONE)
   bio           String?    @db.Text
-  github        String?    @db.VarChar(255)
-  linkedin      String?    @db.VarChar(255)
-  photo_profile String?    @db.VarChar(255)
+  github           String?    @db.VarChar(255)
+  linkedin         String?    @db.VarChar(255)
+  photo_profile_id String?    @unique @db.Char(26)
+
+  photo_profile Media? @relation("UserProfilePhoto", fields: [photo_profile_id], references: [id], onDelete: SetNull)
 
   // counter
   count_artifacts  Int @default(0)
@@ -347,15 +349,16 @@ model Notification {
 
 model Media {
   id          String  @id @default(ulid()) @db.Char(26)
-  artifact_id String  @db.Char(26)
-  url         String  @db.VarChar(255) // Cloudflare R2 URL
+  artifact_id String? @db.Char(26)
+  url         String  @db.VarChar(255) // Cloudflare R2 URL or External OAuth URL
   size        Int     @default(0)
   caption     String? @db.Text
   order       Int     @default(0)
 
   created_at DateTime @default(now()) @db.Timestamp(6)
 
-  artifact Artifact @relation(fields: [artifact_id], references: [id], onDelete: Cascade)
+  artifact     Artifact? @relation(fields: [artifact_id], references: [id], onDelete: Cascade)
+  user_profile User?     @relation("UserProfilePhoto")
 
   @@index([artifact_id], map: "idx_media_artifact_id")
 }

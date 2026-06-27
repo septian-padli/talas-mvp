@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { User, AuthType } from "@prisma/client";
 import * as jose from "jose";
+import { formatMediaUrl } from "@/modules/media/media.interface";
 
 const JWT_SECRET = process.env.JWT_SECRET || "buat_string_acak_dan_panjang_untuk_security_jwt";
 const secret = new TextEncoder().encode(JWT_SECRET);
@@ -30,6 +31,7 @@ export const authService = {
     email: string;
     name: string;
     username: string;
+    picture?: string | null;
   }): Promise<User> {
     // Check for existing username or email to avoid collisions
     const existingUser = await prisma.user.findFirst({
@@ -45,6 +47,16 @@ export const authService = {
       throw new Error("User with that email or username already exists");
     }
 
+    let photoProfileId: string | null = null;
+    if (data.picture) {
+      const media = await prisma.media.create({
+        data: {
+          url: data.picture,
+        },
+      });
+      photoProfileId = media.id;
+    }
+
     return prisma.user.create({
       data: {
         email: data.email,
@@ -52,7 +64,7 @@ export const authService = {
         username: data.username,
         auth_type: AuthType.GOOGLE,
         is_verified: true, // Google OAuth signup is immediately verified
-        // Default counters can be automatically initialized from default values in prisma schema
+        photo_profile_id: photoProfileId,
       },
     });
   },
@@ -89,10 +101,11 @@ export const authService = {
     };
   },
 
-  async createTempOAuthToken(email: string, name: string): Promise<string> {
+  async createTempOAuthToken(email: string, name: string, picture?: string | null): Promise<string> {
     return new jose.SignJWT({
       email,
       name,
+      picture: picture || null,
       type: "google_signup_temp",
     })
       .setProtectedHeader({ alg: "HS256" })
@@ -108,5 +121,21 @@ export const authService = {
     } catch (error) {
       return null;
     }
+  },
+
+  async getCurrentUser(token: string): Promise<any> {
+    const payload = await this.verifyJWT(token);
+    if (!payload || !payload.sub) return null;
+    const user = await prisma.user.findUnique({
+      where: { id: payload.sub as string },
+      include: {
+        photo_profile: true,
+      },
+    });
+    if (!user) return null;
+    return {
+      ...user,
+      photo_profile: formatMediaUrl(user.photo_profile?.url),
+    };
   },
 };

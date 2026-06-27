@@ -6,13 +6,18 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "eslint"
+		"lint": "eslint",
+		"generate:module": "node scripts/generate-module.mjs"
 	},
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.1075.0",
+		"@aws-sdk/s3-request-presigner": "^3.1075.0",
 		"@prisma/client": "^6.19.3",
 		"@tanstack/react-form-nextjs": "^1.33.0",
+		"@tanstack/react-query": "^5.101.1",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"framer-motion": "^12.42.0",
 		"jose": "^6.2.3",
 		"lucide-react": "^1.21.0",
 		"next": "16.2.9",
@@ -21,6 +26,8 @@
 		"radix-ui": "^1.6.0",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
+		"react-dropzone": "^15.0.0",
+		"react-image-crop": "^11.1.2",
 		"shadcn": "^4.11.0",
 		"sonner": "^2.0.7",
 		"tailwind-merge": "^3.6.0",

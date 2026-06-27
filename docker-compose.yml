@@ -35,5 +35,41 @@ services:
       db:
         condition: service_healthy
 
+  storage_emulator:
+    image: minio/minio:latest
+    container_name: talas_storage_emulator
+    restart: always
+    ports:
+      - "${STORAGE_PORT:-9090}:9000"
+      - "${STORAGE_CONSOLE_PORT:-9091}:9001"
+    environment:
+      MINIO_ROOT_USER: ${R2_ACCESS_KEY_ID:-talas_storage_user}
+      MINIO_ROOT_PASSWORD: ${R2_SECRET_ACCESS_KEY:-talas_storage_password}
+      MINIO_API_CORS_ALLOW_ORIGIN: "*"
+    volumes:
+      - storage_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  storage_setup:
+    image: minio/mc:latest
+    container_name: talas_storage_setup
+    depends_on:
+      storage_emulator:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      sleep 1;
+      /usr/bin/mc alias set mystorage http://storage_emulator:9000 ${R2_ACCESS_KEY_ID:-talas_storage_user} ${R2_SECRET_ACCESS_KEY:-talas_storage_password};
+      /usr/bin/mc mb mystorage/${R2_BUCKET_NAME:-talas-media} --ignore-existing;
+      /usr/bin/mc anonymous set download mystorage/${R2_BUCKET_NAME:-talas-media};
+      exit 0;
+      "
+
 volumes:
   postgres_data:
+  storage_data:

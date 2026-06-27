@@ -1,13 +1,17 @@
-import Sidebar from "@/components/Sidebar";
+import CreatePostCard from "@/components/CreatePostCard";
+import { ArtifactCard } from "@/components/artifact";
+import Divider from "@/components/ui/divider";
 
 export default function Home() {
   return (
-    <main className="bg-olive-950 min-h-screen text-white flex flex-row">
-      {/* sidebar */}
-      <Sidebar />
+    <>
+      <CreatePostCard />
+      <div className="bg-[#121212] border border-white/5 rounded-2xl p-6 space-y-8">
+        <ArtifactCard />
+        <Divider />
+        <ArtifactCard />
 
-      {/* content */}
-      <div className="bg-olive-950 flex-1 p-8">content</div>
-    </main>
+      </div>
+    </>
   );
 }
