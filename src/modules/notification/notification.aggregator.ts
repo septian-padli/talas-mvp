@@ -100,4 +100,17 @@ export const notificationAggregator = {
       } satisfies NotificationItem;
     });
   },
+
+  /**
+   * Hitung jumlah notifikasi yang belum dibaca (is_read = false) untuk seorang user.
+   * Digunakan oleh endpoint badge untuk query ringan.
+   */
+  async getUnreadCount(userId: string): Promise<number> {
+    return prisma.notification.count({
+      where: {
+        user_id: userId,
+        is_read: false,
+      },
+    });
+  },
 };

@@ -12,11 +12,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
 import { toast } from "sonner";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { useNotificationBadge } from "@/hooks/useNotifications";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useCurrentUser();
+  const { unreadCount } = useNotificationBadge();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -137,14 +139,19 @@ export default function Sidebar() {
                     : "text-white/80 hover:text-white hover:bg-white/5"
                 )}
               >
-                <Icon
-                  size={24}
-                  strokeWidth={2}
-                  className={cn(
-                    "transition-colors shrink-0",
-                    isActive ? "text-emerald-400" : "text-white"
+                <div className="relative flex items-center justify-center shrink-0">
+                  <Icon
+                    size={24}
+                    strokeWidth={2}
+                    className={cn(
+                      "transition-colors shrink-0",
+                      isActive ? "text-emerald-400" : "text-white"
+                    )}
+                  />
+                  {item.href === "/notifications" && unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-olive-950 animate-pulse" />
                   )}
-                />
+                </div>
                 <AnimatePresence initial={false}>
                   {!isCollapsed && (
                     <motion.span

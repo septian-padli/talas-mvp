@@ -48,11 +48,17 @@ export interface INotificationAggregator {
     userId: string,
     filter?: import("./types/notification").GetNotificationsFilter
   ): Promise<import("./types/notification").NotificationItem[]>;
+  getUnreadCount(userId: string): Promise<number>;
 }
 
 export const NotificationAggregator: INotificationAggregator = {
   async getForUser(userId, filter) {
     const { notificationAggregator } = await import("./notification.aggregator");
     return notificationAggregator.getForUser(userId, filter);
+  },
+
+  async getUnreadCount(userId) {
+    const { notificationAggregator } = await import("./notification.aggregator");
+    return notificationAggregator.getUnreadCount(userId);
   },
 };

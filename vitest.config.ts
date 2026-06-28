@@ -5,9 +5,7 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: true,
-    // Integration tests — jalankan sequential agar tidak ada race condition di DB
-    pool: "forks",
-    singleFork: true,
+    fileParallelism: false,
   },
   resolve: {
     alias: {
