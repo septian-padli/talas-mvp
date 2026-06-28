@@ -31,16 +31,16 @@ datasource db {
 // ==========================================
 
 model User {
-  id            String     @id @default(ulid()) @db.Char(26)
-  username      String     @unique @db.VarChar(255)
-  email         String     @unique @db.VarChar(255)
-  password      String?    @db.VarChar(255) // Nullable for Google OAuth
-  auth_type     AuthType   @default(CREDENTIAL)
-  is_verified   Boolean    @default(false)
-  name          String     @db.VarChar(255)
-  job_title     String?    @db.VarChar(255)
-  job_status    JobStatus? @default(NONE)
-  bio           String?    @db.Text
+  id               String     @id @default(ulid()) @db.Char(26)
+  username         String     @unique @db.VarChar(255)
+  email            String     @unique @db.VarChar(255)
+  password         String?    @db.VarChar(255) // Nullable for Google OAuth
+  auth_type        AuthType   @default(CREDENTIAL)
+  is_verified      Boolean    @default(false)
+  name             String     @db.VarChar(255)
+  job_title        String?    @db.VarChar(255)
+  job_status       JobStatus? @default(NONE)
+  bio              String?    @db.Text
   github           String?    @db.VarChar(255)
   linkedin         String?    @db.VarChar(255)
   photo_profile_id String?    @unique @db.Char(26)
@@ -79,8 +79,9 @@ model User {
   watchers Watchlist[] @relation("WatchedRelations")
 
   // Relations - Notifications
-  notifications    Notification[] @relation("ReceivedNotifications")
-  triggered_notifs Notification[] @relation("TriggeredNotifications")
+  notifications      Notification[] @relation("ReceivedNotifications")
+  triggered_notifs   Notification[] @relation("TriggeredNotifications")
+  last_actor_notifs  Notification[] @relation("LastActorNotifications")
 
   @@index([username], map: "idx_user_username")
 }
@@ -207,6 +208,7 @@ model Collaboration {
 model Tag {
   id   String @id @default(ulid()) @db.Char(26)
   name String @unique @db.VarChar(100)
+  slug String @unique @db.VarChar(100)
 
   artifacts ArtifactTag[]
 }
@@ -328,6 +330,10 @@ model Notification {
   type     NotificationType
   is_read  Boolean          @default(false)
 
+  // Aggregation fields (Instagram-style: 1 row per user+type+artifact, actor_count di-increment per event)
+  actor_count    Int     @default(1)  // Berapa banyak actor sudah trigger notifikasi ini
+  last_actor_id  String? @db.Char(26) // ID actor terbaru (untuk "Alice dan 3 lainnya")
+
   artifact_id   String? @db.Char(26)
   discussion_id String? @db.Char(26)
 
@@ -335,12 +341,18 @@ model Notification {
   discussion Discussion? @relation(fields: [discussion_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @updatedAt @db.Timestamp(6) // Di-update saat actor baru masuk (untuk sort recency)
 
-  user  User  @relation("ReceivedNotifications", fields: [user_id], references: [id], onDelete: Cascade)
-  actor User? @relation("TriggeredNotifications", fields: [actor_id], references: [id], onDelete: Cascade)
+  user       User  @relation("ReceivedNotifications", fields: [user_id], references: [id], onDelete: Cascade)
+  actor      User? @relation("TriggeredNotifications", fields: [actor_id], references: [id], onDelete: Cascade)
+  last_actor User? @relation("LastActorNotifications", fields: [last_actor_id], references: [id], onDelete: SetNull)
 
+  // Catatan: uniqueness untuk tipe agregat (ARTIFACT_BOOST, ARTIFACT_AMPLIFY, NEW_WATCHER)
+  // ditangani secara manual di service layer (findFirst + update/create)
+  // karena Prisma tidak mendukung partial unique index secara native.
   @@index([user_id], map: "idx_notification_user_id")
   @@index([is_read], map: "idx_notification_is_read")
+  @@index([updated_at], map: "idx_notification_updated_at")
 }
 
 // ==========================================
@@ -383,11 +395,23 @@ enum EngagementVoteType {
 }
 
 enum NotificationType {
+  // Co-Authoring & Collaboration
   COLLAB_INVITE
+  COLLAB_ACCEPTED
+  COLLAB_REJECTED
+
+  // Discussions & Mentions (AGENTS.md Rule 3.4 & 3.7)
   NEW_DISCUSSION
   DISCUSSION_REPLY
   USER_MENTION
+
+  // Engagement & Merit
+  ARTIFACT_BOOST
+  ARTIFACT_AMPLIFY
+
+  // Guild & Social Watchers
   NEW_WATCHER
+  GUILD_ANNOUNCEMENT
 }
 
 enum JobStatus {

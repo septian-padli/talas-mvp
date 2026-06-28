@@ -19,6 +19,7 @@ import { useDropzone } from "react-dropzone";
 import ReactCrop, { Crop as CropType, PixelCrop, centerCrop, makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/lib/cropImage";
+import { apiClient } from "@/lib/apiClient";
 
 export enum JobStatusEnum {
   NONE = "NONE",
@@ -138,7 +139,7 @@ export default function EditProfileClient() {
 
         // Step 1: Upload Avatar via Presigned URL if new croppedBlob exists
         if (croppedBlob) {
-          const presignedRes = await fetch("/api/media/presigned-url", {
+          const presignedRes = await apiClient("/api/media/presigned-url", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -165,7 +166,7 @@ export default function EditProfileClient() {
 
           if (!uploadRes.ok) {
             const errBody = await uploadRes.text().catch(() => "");
-            console.error("Direct S3 upload failed:", uploadRes.status, uploadRes.statusText, errBody);
+            console.error("Direct S3 upload failed:", uploadRes.status, errBody);
             throw new Error(`Direct image upload to storage failed (${uploadRes.status})`);
           }
 
@@ -173,7 +174,7 @@ export default function EditProfileClient() {
         }
 
         // Step 2: Update Profile via API
-        const profileRes = await fetch("/api/user/profile", {
+        const profileRes = await apiClient("/api/user/profile", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

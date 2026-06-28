@@ -56,7 +56,7 @@ function ErrorContent() {
     <Card className="w-full sm:max-w-md relative z-10 bg-olive-950/90 border-olive-900/50 backdrop-blur-md text-white shadow-2xl">
       <CardHeader className="text-center pb-4">
         <div className="mb-4 flex justify-center">
-          <Image src={LOGO.HORIZONTAL.COLOR_WHITE} alt="Talas Logo" width={200} height={60} priority />
+          <Image src={LOGO.HORIZONTAL.COLOR_WHITE} alt="Talas Logo" width={200} height={60} style={{ width: "auto", height: "auto" }} priority />
         </div>
         <div className="flex justify-center my-3 text-red-500">
           <AlertCircle className="h-16 w-16 animate-bounce" />

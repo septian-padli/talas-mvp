@@ -153,6 +153,21 @@ export interface ArtifactData {
 // INPUT DTOs & QUERY FILTERS
 // ==========================================
 
+export interface CreateArtifactMediaInput {
+  url: string;
+  caption?: string | null;
+  order?: number;
+  size?: number;
+}
+
+export interface CreateArtifactInput {
+  title: string;
+  content: string;
+  guild_id?: string | null;
+  tags?: string[];
+  media?: CreateArtifactMediaInput[];
+}
+
 export interface CreateArtifactDTO {
   author_id: string;
   title: string;

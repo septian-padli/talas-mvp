@@ -48,6 +48,7 @@ export interface RequestPresignedUrlDTO {
   fileType: string;
   fileSize: number;
   artifact_id?: string;
+  folder?: "avatars" | "artifacts";
 }
 
 /**

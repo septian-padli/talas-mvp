@@ -108,6 +108,7 @@ export default function Sidebar() {
             alt="Talas Logo"
             width={isCollapsed ? 36 : 140}
             height={36}
+            style={{ width: "auto", height: "auto" }}
             priority
             className="object-contain"
           />

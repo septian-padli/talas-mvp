@@ -7,16 +7,25 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "eslint",
-		"generate:module": "node scripts/generate-module.mjs"
+		"generate:module": "node scripts/generate-module.mjs",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1075.0",
 		"@aws-sdk/s3-request-presigner": "^3.1075.0",
+		"@dnd-kit/core": "^6.3.1",
+		"@dnd-kit/sortable": "^10.0.0",
+		"@dnd-kit/utilities": "^3.2.2",
+		"@mdxeditor/editor": "^4.0.4",
 		"@prisma/client": "^6.19.3",
+		"@radix-ui/react-popover": "^1.1.17",
 		"@tanstack/react-form-nextjs": "^1.33.0",
 		"@tanstack/react-query": "^5.101.1",
+		"bright": "^1.0.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"cmdk": "^1.1.1",
 		"framer-motion": "^12.42.0",
 		"jose": "^6.2.3",
 		"lucide-react": "^1.21.0",
@@ -39,12 +48,15 @@
 		"@types/node": "^20",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
+		"@vitest/coverage-v8": "^4.1.9",
 		"babel-plugin-react-compiler": "1.0.0",
 		"eslint": "^9",
 		"eslint-config-next": "16.2.9",
 		"prisma": "^6.19.3",
 		"tailwindcss": "^4",
-		"typescript": "^5"
+		"tsx": "^4.22.4",
+		"typescript": "^5",
+		"vitest": "^4.1.9"
 	},
 	"prisma": {
 		"schema": "src/database/schema.prisma"

@@ -1,5 +1,6 @@
 import { Artifact } from "@prisma/client";
 import {
+  CreateArtifactInput,
   CreateArtifactDTO,
   UpdateArtifactDTO,
   ArtifactQueryFilters,
@@ -15,6 +16,7 @@ export * from "./types/artifact";
  */
 
 export interface IArtifactService {
+  createArtifact(authorId: string, data: CreateArtifactInput): Promise<Artifact>;
   create(data: CreateArtifactDTO): Promise<Artifact>;
   update(id: string, authorId: string, data: UpdateArtifactDTO): Promise<Artifact>;
   delete(id: string, authorId: string): Promise<boolean>;
@@ -29,6 +31,10 @@ export interface IArtifactAggregator {
 
 // Service Facade (Strict WRITE Operations)
 export const ArtifactService: IArtifactService = {
+  async createArtifact(authorId, data) {
+    const { artifactService } = await import("./services/artifact.service");
+    return artifactService.createArtifact(authorId, data);
+  },
   async create(data) {
     const { artifactService } = await import("./services/artifact.service");
     return artifactService.create(data);

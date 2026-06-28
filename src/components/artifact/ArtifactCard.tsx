@@ -44,7 +44,7 @@ export default function ArtifactCard({
   artifact = defaultMockArtifact,
 }: ArtifactCardProps) {
   return (
-    <div className=" flex flex-col w-full shadow-2xl backdrop-blur-md transition-all duration-300">
+    <div className=" flex flex-col w-full shadow-2xl backdrop-blur-md transition-all duration-300 gap-y-4">
       {/* Sub-component 1: Header */}
       <ArtifactHeader
         author={artifact.author}

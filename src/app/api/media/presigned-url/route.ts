@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { filename, fileType, fileSize, artifact_id } = body;
+    const { filename, fileType, fileSize, artifact_id, folder } = body;
 
     if (!filename || !fileType) {
       return NextResponse.json(
@@ -38,6 +38,7 @@ export async function POST(req: Request) {
       fileType,
       fileSize: fileSize || 0,
       artifact_id,
+      folder,
     });
 
     return NextResponse.json({

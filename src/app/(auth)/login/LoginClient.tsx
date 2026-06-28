@@ -90,7 +90,7 @@ export default function LoginClient() {
             <Card className="w-full sm:max-w-md relative z-10 bg-olive-950/90 border-olive-900/50 backdrop-blur-md text-white shadow-2xl">
                 <CardHeader className="text-center pb-4">
                     <div className="mb-4 flex justify-center">
-                        <Image src={"/logo/webp/talas-logo-design-talas-horizontal-color-white.webp"} alt="Talas Logo" width={200} height={60} />
+                        <Image src={"/logo/webp/talas-logo-design-talas-horizontal-color-white.webp"} alt="Talas Logo" width={200} height={60} style={{ width: "auto", height: "auto" }} />
                     </div>
                     <CardTitle className="text-2xl font-bold tracking-tight text-white">
                         Join Talas and Showcase Your Creations

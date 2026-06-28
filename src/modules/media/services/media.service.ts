@@ -109,8 +109,8 @@ export const mediaService = {
     const fileExt = data.filename.split(".").pop() || "webp";
     const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
     
-    const fileKey = data.artifact_id
-      ? `artifacts/${data.artifact_id}/${uniqueFileName}`
+    const fileKey = (data.folder === "artifacts" || data.artifact_id)
+      ? (data.artifact_id ? `artifacts/${data.artifact_id}/${uniqueFileName}` : `artifacts/${uniqueFileName}`)
       : `avatars/${uniqueFileName}`;
 
     const command = new PutObjectCommand({

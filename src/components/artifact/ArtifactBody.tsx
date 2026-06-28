@@ -15,14 +15,14 @@ export default function ArtifactBody({
   tags = [],
 }: ArtifactBodyProps) {
   return (
-    <div className="flex flex-col w-full my-3">
+    <div className="flex flex-col w-full">
       {/* Artifact Title */}
-      <h2 className="text-lg font-medium text-white tracking-wide mb-2.5 leading-snug">
+      <h2 className="text-lg font-bold text-white tracking-wide mb-2 leading-snug">
         {title}
       </h2>
 
       {/* Content Body */}
-      <div className="text-sm text-white/80 leading-relaxed whitespace-pre-line font-normal tracking-wide mb-4">
+      <div className=" text-white/90 leading-relaxed whitespace-pre-line font-normal tracking-wide mb-4">
         {content}
       </div>
 

@@ -80,7 +80,7 @@ export default function ArtifactCarousel({
   };
 
   return (
-    <div className="w-full my-4 flex flex-col items-center gap-4 select-none">
+    <div className="w-full  flex flex-col items-center gap-4 select-none">
       {/* Horizontal Scroll / Drag Area */}
       <div
         ref={containerRef}
@@ -107,6 +107,8 @@ export default function ArtifactCarousel({
                 src={item.url}
                 alt={item.alt || `Media ${index + 1}`}
                 fill
+                unoptimized
+                priority={index === 0}
                 className="object-cover"
               />
             ) : (
